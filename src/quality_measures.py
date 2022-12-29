@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from rdflib.graph import Graph
 from rule import Rule
 from graph_query import query_support, query_body_size, query_head_size, query_pca_body_size, \
-    query_pca_body_size_num_pred_interval, query_body_size_num_pred_interval
+    query_pca_body_size_num_pred_interval, query_body_size_num_pred_interval, query_count_groundings
 import random
 from tqdm import tqdm
 from graph_data import RDFGraph
@@ -14,12 +14,15 @@ class BaseNumMeasure:
     rule: Rule
     graph: RDFGraph
     support_pre_computed: int
+    pca_body_size_pre_computed: int
+
     pred: str  # population
     var_num: str  #
     base_q: str
 
     def __post_init__(self):
         self.support = self.support_pre_computed
+        self.pca_body_size = self.pca_body_size_pre_computed
 
         self.body_size = self.compute_body_size_num()
         self.standard_confidence = self.compute_standard_confidence()
@@ -74,14 +77,14 @@ class MeasureExistential(BaseNumMeasure):
     verbose: bool = False
 
     def __post_init__(self):
-        self.include_exclude: str = 'include' #TODO: change this to existential
+        self.include_exclude: str = 'include'  # TODO: change this to existential
         self.begin_interval: float = -np.inf
         self.end_interval: float = np.inf
         self.pca_body_size = self.pca_body_size_pre_computed
         super().__post_init__()
 
     def set_hypotheses(self):
-        #TODO: change this later according to the definition that will be given in the paper
+        # TODO: change this later according to the definition that will be given in the paper
         # hypo = f' ∃ ?x {self.var_num} {self.pred} ?x {self.rule.rule}'
         hypo = f'{self.var_num} {self.pred} ?any  {self.rule.rule}'
 
@@ -97,11 +100,10 @@ class MeasureEnriched(BaseNumMeasure):
     verbose: bool = False
 
     def __post_init__(self):
-        self.pca_body_size = self.compute_pca_body_size_num()
         super().__post_init__()
 
     def compute_pca_body_size_num(self):
-        #TODO:check with df
+        # TODO:check with df without query
         qpcabsn = query_pca_body_size_num_pred_interval(self.rule, self.base_q, self.pred, self.var_num,
                                                         self.begin_interval,
                                                         self.end_interval, self.include_exclude)
@@ -112,21 +114,30 @@ class MeasureEnriched(BaseNumMeasure):
 
         return q
 
+    def check_pca_bdy_size_df_query(self):
+        pca_bdy_query = self.compute_pca_body_size_num()
+        if self.pca_body_size == pca_bdy_query:
+            return True
+        else:
+            return False
+
     def set_hypotheses(self):
-        #TODO: change this later according to the definition that will be given in the paper
+        # TODO: change this later according to the definition that will be given in the paper
         _term = 'NOT BETWEEN' if self.include_exclude == 'exclude' else 'BETWEEN'
         hypo = f'{self.var_num} {self.pred} ?any ?any {_term} [{self.begin_interval}, {self.end_interval}] {self.rule.rule}'
         return hypo
 
 
 @dataclass
-class AmieMeasure:
+class RuleMeasure:
     rule: Rule
     graph: RDFGraph
     verbose: bool = False
 
     def __post_init__(self):
 
+        self.func_var = self.compute_functionality()
+        self.rule.set_functionalVariable(self.func_var)  # needed for pca_body_size
         self.head_size = self.compute_head_size()
         self.support = self.compute_support()
         self.body_size = self.compute_body_size()
@@ -135,15 +146,23 @@ class AmieMeasure:
         self.standard_confidence = self.compute_standard_confidence()
         self.pca_confidence = self.compute_pca_confidence()
 
+    def compute_functionality(self):
+        qfu_subj = query_count_groundings(self.rule, on='subject')
+        subj_count = self.graph.query_count(qfu_subj)
+
+        qfu_obj = query_count_groundings(self.rule, on='object')
+        obj_count = self.graph.query_count(qfu_obj)
+        return self.rule.conclusion.subject if subj_count > obj_count else self.rule.conclusion.objectD
+
     def compute_pca_confidence(self):
         if self.verbose:
             print("pca confidence: ", self.support / self.pca_body_size)
             print("support", self.support)
             print("pca bds", self.pca_body_size)
-        return self.support / self.pca_body_size
+        return self.support / self.pca_body_size if self.pca_body_size > 0 else 0
 
     def compute_standard_confidence(self):
-        return self.support / self.body_size
+        return self.support / self.body_size if self.body_size > 0 else 0
 
     def compute_support(self):
         qs = query_support(self.rule)
@@ -180,7 +199,7 @@ class AmieMeasure:
 
 
 def sanityCheckMeauresAmie(rule: Rule, graph: Graph):
-    ms = AmieMeasure(rule, graph)
+    ms = RuleMeasure(rule, graph)
     supp, bd, pcabd = 0, 0, 0
     try:
         assert ms.support == rule.support

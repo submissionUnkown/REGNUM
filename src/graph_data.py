@@ -6,8 +6,6 @@ import os
 import stardog
 import io
 import pandas as pd
-
-from urllib import parse
 import logging
 from data_loader import BaseDataLoader
 from tqdm import tqdm

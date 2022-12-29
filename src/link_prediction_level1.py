@@ -1,12 +1,14 @@
 from dataclasses import dataclass, field
 from abc import abstractmethod
 from graph_query import create_query_kg_completion, \
-    create_query_kg_completion_numerical
+    create_query_kg_completion_intervals
 from enum import Enum
 import pandas as pd
 import tqdm
-from graph_data import RDFGraph
+from graph_data import StarDogGraph, RDFLibGraph, RDFGraph
 from assets import democracy, expert_conf, dict_df_two_cols, dict_pred_to_df
+from custom_exception import RulesNotWellDefined
+from typing import Dict
 
 
 class Wrapper:
@@ -72,8 +74,9 @@ class BasebenchmarkKGC:
 
     def _create_dict_cand_to_score(self, mode, dict_test_rule_cands, k=10):
         if mode == "weightedfscore":
-            self.dict_weighted_fscore = {rule_id: 1 / len(cands) * self.map_idx_rule[rule_id]['f_score'] for
-                                         rule_id, cands in dict_test_rule_cands.items()}
+            self.dict_rule_to_score = {rule_id: 1 / len(cands) * self.map_idx_rule[rule_id]['f_score'] for
+                                       rule_id, cands in dict_test_rule_cands.items()}
+            # print("self.dict_rule_to_score", self.dict_rule_to_score)
         dict_cand_to_score = {}
         for rule_id, cands in dict_test_rule_cands.items():
             for cand in cands:
@@ -97,30 +100,44 @@ class BasebenchmarkKGC:
 
     def popul_max(self, dict_cand_to_score, cand, rule_id):
         if cand not in dict_cand_to_score:
-            dict_cand_to_score[cand] = self.map_idx_rule[rule_id]['pca_confidence']
+            dict_cand_to_score[cand] = self.map_idx_rule[rule_id]['pcaConfidence']
         else:
             # print(self.map_idx_rule[rule_id]['pcaConfidence'])
             # print(dict_cand_to_score[cand])
-            dict_cand_to_score[cand] = max(self.map_idx_rule[rule_id]['pca_confidence'], dict_cand_to_score[cand])
+            dict_cand_to_score[cand] = max(self.map_idx_rule[rule_id]['pcaConfidence'], dict_cand_to_score[cand])
         return dict_cand_to_score
 
     def popul_ws(self, dict_cand_to_score, cand, rule_id):
         if cand not in dict_cand_to_score:
-            dict_cand_to_score[cand] = self.dict_weighted_fscore[rule_id]
+            dict_cand_to_score[cand] = self.dict_rule_to_score[rule_id]
         else:
-            dict_cand_to_score[cand] += self.dict_weighted_fscore[rule_id]  ##can be changed to average
+            dict_cand_to_score[cand] += self.dict_rule_to_score[rule_id]  ##can be changed to average
         return dict_cand_to_score
 
     def popul_noisy_or(self, dict_cand_to_score, cand, rule_id):
         if cand not in dict_cand_to_score:
-            dict_cand_to_score[cand] = 1 - self.map_idx_rule[rule_id]['pca_confidence']
+            dict_cand_to_score[cand] = 1 - self.map_idx_rule[rule_id]['pcaConfidence']
         else:
-            dict_cand_to_score[cand] *= 1 - self.map_idx_rule[rule_id]['pca_confidence']
+            dict_cand_to_score[cand] *= 1 - self.map_idx_rule[rule_id]['pcaConfidence']
         return dict_cand_to_score
 
     @abstractmethod
     def link_pred_test_to_dict(self):
         pass
+
+
+from utils import mult_proc_apply
+from functools import partial
+
+
+@dataclass
+class BenchmarkKGCAMIE(BasebenchmarkKGC):
+    useful_rules: list = field(default_factory=lambda x: [])
+
+    def __post_init__(self):
+        super().__post_init__()
+        self.map_idx_rule = {i: self.rules[i].toDict() for i in range(len(self.rules))}
+        self.link_pred_test_to_dict()
 
     def _check_con_instantiated_corr(self, rule, inst_possible):
 
@@ -134,30 +151,6 @@ class BasebenchmarkKGC:
                     return True
         return False
 
-
-@dataclass
-class BenchmarkKGCAMIE(BasebenchmarkKGC):
-    useful_rules: list = field(default_factory=list)
-
-    def __post_init__(self):
-        super().__post_init__()
-        self.map_idx_rule = {i: self.rules[i].toDict() for i in range(len(self.rules))}
-        self.link_pred_test_to_dict()
-
-    def link_pred_test_to_dict(self):
-        # idx_rules = []
-        # for idx, rule in enumerate(tqdm.tqdm(self.rules)):
-        #    idx_rules.append((idx, rule))
-
-        # mult_proc_apply(partial(self._link_pred_query_populate), idx_rules)
-        for idx, rule in enumerate(tqdm.tqdm(self.rules)):
-            if '!=' in rule.rule:
-                continue
-            if idx not in self.useful_rules and len(self.useful_rules) > 0:
-                continue
-
-            self._link_pred_query_populate((idx, rule))
-
     def _link_pred_query_populate(self, idx_rule):
         idx, rule = idx_rule
         curr_p = rule.conclusion.predicate_raw
@@ -168,13 +161,15 @@ class BenchmarkKGCAMIE(BasebenchmarkKGC):
         insts_possible = curr_df_test[self.entity_known].unique()
         dict_inst_res_tmp = {}  # only for faster execution - not to have redundant queries
 
-        query, var_name, instance = create_query_kg_completion(rule, insts_possible, head_missing=self.head_missing)
-        # print(query)
-        # print(instance)
-        df_ = self.graph.query_dataframe(query)
-        # print(df_)
+        query = create_query_kg_completion(rule, head_missing=self.head_missing, global_query=True)
 
-        inst_to_list = df_.groupby(instance)[var_name].apply(list).to_dict()
+        df_ = self.graph.query_dataframe(query)
+        name_var = set(df_.columns) - set(['instance'])
+        if len(name_var) != 1:
+            raise Exception(f'Expectin to see instance and one more variable only sth is wrong! {name_var}')
+        var_name = list(name_var)[0]
+
+        inst_to_list = df_.groupby('instance')[var_name].apply(list).to_dict()
 
         for inst_possible in insts_possible:
             if self.rules_contain_conts and self._check_con_instantiated_corr(rule,
@@ -202,15 +197,33 @@ class BenchmarkKGCAMIE(BasebenchmarkKGC):
                 if len(filtered_res) > 0:
                     self.test_to_responses_dict[k][idx] = filtered_res
 
+    def link_pred_test_to_dict(self):
+        # idx_rules = []
+        # for idx, rule in enumerate(tqdm.tqdm(self.rules)):
+        #    idx_rules.append((idx, rule))
+
+        # mult_proc_apply(partial(self._link_pred_query_populate), idx_rules)
+        for idx, rule in enumerate(tqdm.tqdm(self.rules)):
+            if '!=' in rule.rule:
+                continue
+            if idx not in self.useful_rules and len(self.useful_rules) > 0:
+                continue
+
+            self._link_pred_query_populate((idx, rule))
+
 
 @dataclass
 class BenchmarckNumKGC(BasebenchmarkKGC):
     dict_all_new_rules: dict = None
 
     def __post_init__(self):
+        print('hereee')
+
         super().__post_init__()
         self.map_idx_rule = {}
         self.link_pred_test_to_dict()
+
+        # self.hits1Res = self.hits_at_one(self.test_to_responses_dict)
 
     def __sum_dicts(self, d1, d2):
         d1.update(d2)
@@ -227,25 +240,19 @@ class BenchmarckNumKGC(BasebenchmarkKGC):
 
         return comb_d
 
-    def combine_amie_numamie(self, only_useful=False, concat_all=True):
-        self.useful_rules = []
-        if only_useful:
-            for rule_num_r, dict_v in (self.dict_all_new_rules.items()):
-                dict_var_to_rules = dict_v["numerical_rules"]
-                if len(dict_var_to_rules) > 0:
-                    self.useful_rules.append(int(rule_num_r))
+    def combine_amie_numamie(self, concat_all=False):
+        useful_rules = []
+        for rule_num_r, dict_v in (self.dict_all_new_rules.items()):
+            dict_var_to_rules = dict_v["var_pred"]
+            if len(dict_var_to_rules) > 0:
+                useful_rules.append(int(rule_num_r))
 
-        bkgamie = BenchmarkKGCAMIE(useful_rules=self.useful_rules, graph=self.graph, df_test=self.df_test,
-                                   df_train=self.df_train, rules=self.rules,
+        bkgamie = BenchmarkKGCAMIE(useful_rules=useful_rules, graph=self.graph, df_test=self.df_test, df_train=self.df_train, rules=self.rules,
                                    kg_completion_task=self.kg_completion_task)
 
         self.test_to_responses_dict = self._sum_dicts(d1_amie=bkgamie.test_to_responses_dict,
                                                       d_numamie=self.test_to_responses_dict, concat_all=concat_all)
         self.map_idx_rule = self.__sum_dicts(bkgamie.map_idx_rule, self.map_idx_rule)
-
-    @property
-    def enriched_rules(self):
-        return self.useful_rules
 
     def link_pred_test_to_dict(self):
         """
@@ -256,70 +263,94 @@ class BenchmarckNumKGC(BasebenchmarkKGC):
         """
         self.useful_rules = []
         self.test_productive = set()
-        for rule_idx, one_pr_enriched_dict in tqdm.tqdm(self.dict_all_new_rules.items()):
+        for rule_num_r, dict_v in tqdm.tqdm(self.dict_all_new_rules.items()):
 
-            parent_rule = one_pr_enriched_dict['parent_rule']
-            one_rule_enriched_list = one_pr_enriched_dict["numerical_rules"]
+            rule = self.rules[int(rule_num_r)]
+            # print(rule)
+            dict_var_to_rules = dict_v["var_pred"]
 
-            if len(one_rule_enriched_list) > 0:
-                self.useful_rules.append(int(rule_idx))
-
-            curr_p = parent_rule.conclusion.predicate_raw
+            if len(dict_var_to_rules) > 0:
+                self.useful_rules.append(int(rule_num_r))
+            curr_p = rule.conclusion.predicate_raw
             curr_df_test = self.pred_to_df_test[curr_p]
             if curr_df_test.shape[0] == 0:
                 continue
 
             insts_possible = curr_df_test[self.entity_known].unique()
-            dict_inst_res_tmp = {}
+            for var_num, dict_pred_to_rule in dict_var_to_rules.items():
+                # print(var_num)
 
-            for enum_enrich, enriched_dict in enumerate(one_rule_enriched_list):
-                include_exclude = enriched_dict['include_exclude']
-                numerical_part = enriched_dict['numerical_part']
+                for pred, l_rule in dict_pred_to_rule.items():
+                    # print(pred)
 
-                query, var_name, instance = create_query_kg_completion_numerical(parent_rule=parent_rule,
-                                                                                 numerical_part_dict=numerical_part,
-                                                                                 include_exclude=include_exclude,
-                                                                                 instances=insts_possible,
-                                                                                 head_missing=self.head_missing)
+                    query, name_var = create_query_kg_completion_intervals(rule, pred, var_num,
+                                                                           head_missing=self.head_missing,
+                                                                           global_query=True)
+                    # print(query)
+                    df_ = self.graph.query_dataframe(query)
 
+                    for enum, rule_enriched in enumerate(l_rule):
 
-                #if len(numerical_part)==2 and include_exclude=='include':
-                #    print(query)
-                #    print(numerical_part)
-                #    print(include_exclude)
+                        ##print(enum,'EEEEEEEEEE')
+                        ##print(rule_enriched)
+                        dict_inst_res_tmp = {possible_instt: [] for possible_instt in insts_possible}
+                        beginInterval, endInterval = rule_enriched["beginInterval"], rule_enriched["endInterval"]
+                        ##print(beginInterval, endInterval)
+                        include_exclude = rule_enriched['include_exclude']
 
-                df_ = self.graph.query_dataframe(query)
+                        for possible_instt, df in df_.groupby('instance'):
+                            df_2 = None
 
-                inst_to_list = df_.groupby(instance)[var_name].apply(list).to_dict()
+                            if possible_instt not in insts_possible:
+                                continue
+                            # print(possible_instt)
+                            # print('EEEEEEEEEEE')
+                            #print(df)
+                            if include_exclude == 'exclude':
+                                df_2 = df[~df.x.between(beginInterval, endInterval, inclusive="left")]
+                            elif include_exclude == 'include':
+                                df_2 = df[df.x.between(beginInterval, endInterval)]
+                            else:
+                                raise Exception(f'bug, {include_exclude} should be exclude or include')
 
-                for inst_possible in insts_possible:
-                    if self.rules_contain_conts and self._check_con_instantiated_corr(parent_rule,
-                                                                                      inst_possible):
-                        dict_inst_res_tmp[inst_possible] = []
-                        continue
-                    else:
-                        if inst_possible in inst_to_list:
-                            dict_inst_res_tmp[inst_possible] = inst_to_list[inst_possible]
-                        else:
-                            dict_inst_res_tmp[inst_possible] = []
+                            dict_inst_res_tmp[possible_instt] = list(df_2[name_var].values)
 
-                for k, row in curr_df_test.iterrows():
-                    instance_kn = row[self.entity_known]
+                        ##print(dict_inst_res_tmp,'dddddd')
+                        # filtering#
 
-                    if len(dict_inst_res_tmp[instance_kn]) > 0:
-                        ## FILTERING
-                        try:
-                            to_filter_in_train_p_obj = set(
-                                self.dict_df_pred_obj[curr_p][instance_kn][self.entity_uk].unique())
+                        for k, row in curr_df_test.iterrows():
+                            instance_kn = row[self.entity_known]
 
-                        except:
-                            to_filter_in_train_p_obj = set()
+                            if len(dict_inst_res_tmp[instance_kn]) > 0:
+                                ## FILTERING
+                                try:
+                                    to_filter_in_train_p_obj = set(
+                                        self.dict_df_pred_obj[curr_p][instance_kn][self.entity_uk].unique())
+                                except:
+                                    to_filter_in_train_p_obj = set()
 
-                        filtered_res = set(dict_inst_res_tmp[instance_kn]) - to_filter_in_train_p_obj
-                        if len(filtered_res) > 0:
-                            self.test_to_responses_dict[k][(rule_idx, enum_enrich)] = filtered_res
-                            if (rule_idx, enum_enrich) not in self.map_idx_rule:
-                                self.test_productive.add(k)
-                                self.map_idx_rule[(rule_idx, enum_enrich)] = enriched_dict
+                                # #print("curr_p", curr_p)
+                                # #print("instance_kn", instance_kn)
+                                # #print("dict dotayishun: ",  self.dict_df_pred_obj[curr_p][instance_kn])
+                                # #print("in moheme", to_filter_in_train_p_obj)
 
-                        # print(self.test_to_responses_dict)
+                                filtered_res = set(dict_inst_res_tmp[instance_kn]) - to_filter_in_train_p_obj
+
+                                ##print("before filtering", len(dict_inst_res_tmp[instance_kn]))
+                                ##print("after filtering", len(filtered_res))
+                                ##print(filtered_res)
+
+                                # #print(len(set(dict_inst_res_tmp[instance_kn]) - filtered_res))
+
+                                if len(filtered_res) > 0:
+                                    self.test_productive.add(k)
+                                    self.test_to_responses_dict[k][(rule_num_r, var_num, pred, enum)] = filtered_res
+                                    if (rule_num_r, var_num, pred, enum) not in self.map_idx_rule:
+                                        self.map_idx_rule[(rule_num_r, var_num, pred, enum)] = rule_enriched
+                                        # self.map_idx_rule[(rule_num_r, enumm)] = rule_enriched
+
+                                ##print(self.test_to_responses_dict)
+            # print(self.test_to_responses_dict)
+
+            # print(self.map_idx_rule)
+            # print(len(self.map_idx_rule))

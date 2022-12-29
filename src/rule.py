@@ -28,7 +28,7 @@ class Atom:
 
     @property
     def subject_raw(self):
-        return self._subject
+        return self._subject.replace('?', '')
 
     @property
     def predicate(self):
@@ -44,7 +44,7 @@ class Atom:
 
     @property
     def object_raw(self):
-        return self._objectD
+        return self._objectD.replace('?', '')
 
     @property
     def atom(self):
@@ -59,27 +59,35 @@ class Atom:
         return [v.replace('?', '') for v in self.atom_variables]
 
 
-
 class Rule:
 
     def __init__(self, line):
         self.line = line
+
+        self.headCoverage = None
+        self.stdConfidence = None
+        self.pcaConfidence = None
+        self.support = None
+        self.bodySize = None
+        self.pcaBodySize = None
+        self.functionalVariable = None
+
         self._init_rule_features(self.line)
         self._build_conclusion_hypotheses()
 
     def _init_rule_features(self, line):
         parts = line.strip().split("\t")
         self.rule = parts[0]
-
-        self.headCoverage = float(parts[1])
-        self.stdConfidence = float(parts[2])
-        self.pcaConfidence = float(parts[3])
-        self.support = int(parts[4])
-        self.bodySize = float(parts[5])
-        self.pcaBodySize = float(parts[6])
-        self.functionalVariable = str(parts[7])
         self.rule_variables = set(re.findall("\?[a-zA-Z]+", self.rule))
         self.solid_rule_variables = [v.replace('?', '') for v in self.rule_variables]
+        if len(parts) > 1:
+            self.headCoverage = float(parts[1])
+            self.stdConfidence = float(parts[2])
+            self.pcaConfidence = float(parts[3])
+            self.support = int(parts[4])
+            self.bodySize = float(parts[5])
+            self.pcaBodySize = float(parts[6])
+            self.functionalVariable = str(parts[7])
 
     def _build_conclusion_hypotheses(self):
         pr = self.rule.split("=>")
@@ -124,14 +132,35 @@ class Rule:
 
     @property
     def f_score(self):
-        return 2*(self.pcaConfidence* self.headCoverage)/(self.pcaConfidence+self.headCoverage)
+        return 2 * (self.pcaConfidence * self.headCoverage) / (self.pcaConfidence + self.headCoverage) if (self.pcaConfidence + self.headCoverage) > 0 else 0
 
     def toDict(self):
         return {"hypotheses": self.hypotheses, "conclusion": self.conclusion, "size_hypothese": self.size_hypotheses,
-                "headCoverage": self.headCoverage, "stdConfidence": self.stdConfidence,
-                "pcaConfidence": self.pcaConfidence,'f_score': self.f_score, "positiveExamples": self.support,
-                "bodySize": self.bodySize, "pcaBodySize": self.pcaBodySize,
+                "head_coverage": self.headCoverage, "stdConfidence": self.stdConfidence,
+                "pca_confidence": self.pcaConfidence, 'f_score': self.f_score, "support": self.support,
+                "bodySize": self.bodySize, "pca_body_size": self.pcaBodySize,
                 "functionalVariable": self.functionalVariable}
+
+    def set_headCoverage(self, value):
+        self.headCoverage = value
+
+    def set_stdConfidence(self, value):
+        self.stdConfidence = value
+
+    def set_pcaConfidence(self, value):
+        self.pcaConfidence = value
+
+    def set_support(self, value):
+        self.support = value
+
+    def set_bodySize(self, value):
+        self.bodySize = value
+
+    def set_pcaBodySize(self, value):
+        self.pcaBodySize = value
+
+    def set_functionalVariable(self, value):
+        self.functionalVariable = value
 
 
 """

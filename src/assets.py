@@ -9,6 +9,10 @@ def get_sequences(intervals):
     ]
 
 
+def _get_sequences(intervals):
+    return [list(g) for _, g in groupby(intervals, lambda x: x[0] - x[1])]
+
+
 def dict_df_two_cols(df, key1, key2):
     k1_k2_df_dict = {}
     for keys, value in df.groupby([key1, key2]):
@@ -16,6 +20,13 @@ def dict_df_two_cols(df, key1, key2):
         if k1 not in k1_k2_df_dict:
             k1_k2_df_dict[k1] = {}
         k1_k2_df_dict[k1][k2] = value
+    return k1_k2_df_dict
+
+
+def _dict_df_two_cols(df, key1, key2):
+    k1_k2_df_dict = {}
+    for k1, k2, value in df.groupby([key1, key2]):
+        k1_k2_df_dict.setdefault(k1, {})[k2] = value
     return k1_k2_df_dict
 
 
@@ -39,3 +50,18 @@ def democracy(dict_test_rules_cands, rules=None):
     flattened_candidates = list(chain(*dict_test_rules_cands.values()))
     value, count = Counter(flattened_candidates).most_common(1)[0]
     return value
+
+
+"""
+def democracy(dict_test_rules_cands, rules=None):
+    flattened_candidates = list(chain(*dict_test_rules_cands.values()))
+    if not flattened_candidates:
+        return None, 0
+    counter = Counter(flattened_candidates)
+    most_common = counter.most_common(1)
+    if len(most_common) == 1:
+        return most_common[0]
+    else:
+        return None, 0
+
+"""

@@ -12,3 +12,7 @@ class NotTypeError(Exception):
 
 class RulesNotWellDefined(Exception):
     ...
+
+
+class NodeRulesNotWellConstructed(Exception):
+    ...

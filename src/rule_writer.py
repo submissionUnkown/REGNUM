@@ -32,7 +32,7 @@ class WriteNewRules:
         self.saving_path: str = saving_path
         self.saving_mode: SavingModeRules = saving_mode
         self.binning_technique = binning
-        self._meta_data_writer()
+        #self._meta_data_writer()
 
     def _meta_data_writer(self):
         if self.saving_mode.value == "amie-like":

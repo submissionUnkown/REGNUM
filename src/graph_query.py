@@ -3,7 +3,8 @@ from graph_data import RDFLibGraph
 import numpy as np
 
 
-def query_rule_num_pred(rule, num_pred, var):
+def query_rule_num_pred(rule, var_preds_dict):
+    # var_preds_dict = {'a':[wwm,zz], 'b':[bb,tt]}
     # var = ?a
     # rule = ?a  place of birth  ?b   => ?a  place of death  ?b
     # pred: patronage_1
@@ -20,8 +21,23 @@ def query_rule_num_pred(rule, num_pred, var):
     query += f"""SELECT DISTINCT {rule.conclusion.subject} {rule.conclusion.objectD} WHERE {{"""
     for hyp in rule.hypotheses:
         query += f'\n{hyp.atom} .'
+
     query += f'\n{rule.conclusion.atom} .'
-    query += f'\n{var} <{num_pred}> ?anythinglit .'
+    enum = 0
+    for var, num_preds in var_preds_dict.items():
+        for num_pred in num_preds:
+            query += f'\n{var} <{num_pred}> ?anythinglit_{enum} .'
+            enum += 1
+    return query + """\n}}"""
+
+
+def query_select_useful_preds(rule, var):
+    query = f""" SELECT DISTINCT ?useful_preds  WHERE {{\n"""
+    query += f"""SELECT DISTINCT {rule.conclusion.subject} ?useful_preds {rule.conclusion.objectD} WHERE {{"""
+    for hyp in rule.hypotheses:
+        query += f'\n{hyp.atom} .'
+    query += f'\n{rule.conclusion.atom} .'
+    query += f'\n{var} ?useful_preds ?anythinglit .'
     return query + """\n}}"""
 
 
@@ -77,6 +93,21 @@ def query_rule_add_base(rule, even_not_func_enrich_g: bool):
     return query, rep_var
 
 
+def query_main_df(base_query, var_preds_dict):
+    query = 'SELECT * WHERE {'
+    query += base_query
+    iterr = 0
+    dict_feature_var_pred = {}
+    for var, preds in var_preds_dict.items():
+        for pred in preds:
+            query += f'\n{var} <{pred}> ?anythinglit{iterr} .'
+            dict_feature_var_pred[f"anythinglit{iterr}"] = (var, pred)
+
+            iterr += 1
+    query += '\n}'
+    return query, dict_feature_var_pred
+
+
 def query_rule_add_df(base_query, rule_variables, preds, var):
     preds = [f'<{pred}>' for pred in preds]
     query = f"""SELECT {' '.join(rule_variables)} ?suitable_preds ?anything ?anythinglit WHERE {{"""
@@ -86,17 +117,16 @@ def query_rule_add_df(base_query, rule_variables, preds, var):
     return query + """\n}""", 'suitable_preds'
 
 
+def query_count_groundings(rule, on='subject'):
+    if on == 'subject':
+        query = f"""SELECT (COUNT(DISTINCT {rule.conclusion.subject}) AS ?count) WHERE {{\n"""
+    elif on == 'object':
+        query = f"""SELECT (COUNT(DISTINCT {rule.conclusion.objectD}) AS ?count) WHERE {{\n"""
+    else:
+        raise Exception(f'only subject or object you passed {on}')
 
-
-    '''
-    # pred = population
-    # var = ?a
-    # base_query = query_rule_add_base(rule)
-    base_query += f'\n{var} {pred} ?anythinglit .'
-    base_query += f'\nFILTER(?anything {"=" if eq else "!="} {rule_conc_obj}).'
-
-    return base_query + """\n}"""
-    '''
+    query += f"{rule.conclusion.subject} {rule.conclusion.predicate} {rule.conclusion.objectD} ."
+    return query + """\n}"""
 
 
 def query_support(rule):
@@ -126,15 +156,6 @@ def query_body_size(rule):  # TODO:check for  f"""SELECT DISTINCT {' '.join(rule
     return query
 
 
-def query_head_size(rule):
-    query = f""" SELECT ( COUNT( DISTINCT * ) AS ?count ) WHERE {{\n"""
-
-    # query += f"""SELECT DISTINCT {rule.conclusion.subject} {rule.conclusion.objectD} WHERE {{"""
-    query += f'\n{rule.conclusion.atom}'
-    query += """\n}"""
-    return query
-
-
 def query_pca_body_size(rule):  # TODO: join(rule_parent.rule_variables)} check replace ?a ?b
     query = f""" SELECT ( COUNT( DISTINCT * ) AS ?count ) WHERE {{\n"""
     query += f"""SELECT DISTINCT {' '.join(rule.conclusion.atom_variables)} WHERE {{"""
@@ -146,6 +167,15 @@ def query_pca_body_size(rule):  # TODO: join(rule_parent.rule_variables)} check 
     elif rule.functionalVariable == rule.conclusion.objectD:
         query += f'\n?anything {rule.conclusion.predicate} {rule.conclusion.objectD}'
     return query + """\n}}"""
+
+
+def query_head_size(rule):
+    query = f""" SELECT ( COUNT( DISTINCT * ) AS ?count ) WHERE {{\n"""
+
+    # query += f"""SELECT DISTINCT {rule.conclusion.subject} {rule.conclusion.objectD} WHERE {{"""
+    query += f'\n{rule.conclusion.atom}'
+    query += """\n}"""
+    return query
 
 
 def query_pca_body_size_num_pred_interval(rule_parent, base_q, pred_num, var_np, min_interval, max_interval,
@@ -202,7 +232,7 @@ def query_body_size_num_pred_interval(rule_parent, pred_num, var_np, min_interva
             else:
                 query += f'\nFILTER(?x >= {min_interval}) .'
 
-    else: #min_interval is -inf
+    else:  # min_interval is -inf
         if max_interval != float(np.inf):
             if include_exclude == 'exclude':
                 query += f'\nFILTER(?x >= {max_interval}) .'
@@ -212,41 +242,67 @@ def query_body_size_num_pred_interval(rule_parent, pred_num, var_np, min_interva
     return query + """\n}}"""
 
 
-def helper_select_replace(rule, instance, head_missing, global_query):
-    global_inst = ''
-    if not global_query:
-        if instance is None:
-            raise ValueError('when global is False you should pass an instance.')
-    else:
-        global_inst = ' ?instance'
-        instance = global_inst.lstrip()
+def helper_select_replace(rule: Rule, head_missing):
     if head_missing:
         _select = rule.conclusion.subject
+        _select_raw = rule.conclusion.subject_raw
+
         replace_it = rule.conclusion.objectD
+        _replace_it_raw = rule.conclusion.object_raw
+
     else:
         _select = rule.conclusion.objectD
+        _select_raw = rule.conclusion.object_raw
+
         replace_it = rule.conclusion.subject
+        _replace_it_raw = rule.conclusion.subject_raw
+    return _select, _select_raw, replace_it, _replace_it_raw
 
-    return global_inst, instance, _select, replace_it
+
+def create_query_kg_completion_numerical(parent_rule, numerical_part_dict, include_exclude, instances,
+                                         head_missing=True):
+    _select, _select_raw, replace_it, _replace_it_raw = helper_select_replace(parent_rule, head_missing)
+    _map_dirs = {'<=': '>', '>': '<='}
+    instances = [f'<{inst}>' for inst in instances]
+
+    knows_query = f"""SELECT DISTINCT {_select} {replace_it} WHERE {{"""
+    for hyp in parent_rule.hypotheses:
+        knows_query += f'\n{hyp.atom} .'
+    for i, k in enumerate(numerical_part_dict):
+        knows_query += f'\n{k[0]} <{k[1]}> ?num{i} .'
+
+    knows_query += f"\nFILTER( {replace_it} IN ({', '.join(instances)})) ."
+
+    if include_exclude != 'existential':
+        filter_part = ''
+        for i, (k, v) in enumerate(numerical_part_dict.items()):
+            s = ''
+            for dir, thr in v.items():
+                operator = '||' if include_exclude == 'exclude' else '&&'
+                direction = _map_dirs[dir] if include_exclude == 'exclude' else dir
+                s += f'?num{i} {direction} {thr} {operator} '
+
+            s = s[:-4]
+
+            operator = '||' if include_exclude == 'exclude' else '&&'
+            filter_part += f' {s} {operator}'
+
+        knows_query += f'\nFILTER({filter_part[:-2].strip()}) .'
+
+    return knows_query + """\n}""", _select_raw, _replace_it_raw
 
 
-def create_query_kg_completion(rule, instance=None, head_missing=True, global_query=False):
-    global_inst, instance, _select, replace_it = helper_select_replace(rule, instance, head_missing, global_query)
+def create_query_kg_completion(rule, instances, head_missing=True):
+    _select, _select_raw, replace_it, _replace_it_raw = helper_select_replace(rule, head_missing)
 
-    knows_query = f"""SELECT DISTINCT {_select}{global_inst} WHERE {{"""
+    instances = [f'<{inst}>' for inst in instances]
+    knows_query = f"""SELECT DISTINCT {_select} {replace_it} WHERE {{"""
     for hyp in rule.hypotheses:
-        knows_query += "\n"
-        if hyp.subject == replace_it:
-            knows_query += f"{str(instance)} "
-        else:
-            knows_query += f"{hyp.subject} "
-        knows_query += f"{hyp.predicate} "
-        if hyp.objectD == replace_it:
-            knows_query += f"{instance} ."
-        else:
-            knows_query += f"{hyp.objectD} ."
+        knows_query += f'\n{hyp.atom} .'
 
-    return knows_query + """\n}"""
+    knows_query += f"\nFILTER( {replace_it} IN ({', '.join(instances)})) ."
+
+    return knows_query + """\n}""", _select_raw, _replace_it_raw
 
 
 def create_query_kg_completion_intervals(rule, pred_num, var_np, instance=None, head_missing=True, global_query=False):

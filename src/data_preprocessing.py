@@ -6,8 +6,6 @@ import conf
 import pandas as pd
 
 
-## Note to self: This file for preprocessing : classification concluding on a type, aggregate,..
-
 def get_label_name(inp):
     sparql = SPARQLWrapper(conf.ENDPOINTSPARQL)
     type_label = None
