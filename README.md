@@ -18,12 +18,11 @@ This repository contains the data and implementation of the submission  **REGNUM
 <details>
 
 <summary>Run the following to set up your virtual environment and install the Python requirements:</summary>
-    
-    ```bash
+
     python3.8 -m venv regnum_env
     source regnum_env/bin/activate
     pip install -r requirements.txt
-    ```
+    
 </details>
 <details>
 
