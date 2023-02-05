@@ -1,0 +1,17 @@
+
+regnum_env
+# Jupyter Notebook
+
+.ipynb_checkpoints
+
+
+# pyenv
+.python-version
+
+.env
+.venv
+env/
+venv/
+.idea/
+.DS_Store
+

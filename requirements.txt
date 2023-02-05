@@ -3,7 +3,6 @@ pandas==1.4.1
 jupyter==1.0.0
 matplotlib==3.3.3
 numpy==1.22.2
-Pillow==8.0.1
 rdflib==5.0.0
 SPARQLTransformer==2.0.0
 SPARQLWrapper==1.8.5
