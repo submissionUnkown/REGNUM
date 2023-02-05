@@ -3,7 +3,7 @@ regnum_env
 # Jupyter Notebook
 
 .ipynb_checkpoints
-
+src/__pycache__/
 
 # pyenv
 .python-version
@@ -14,4 +14,4 @@ env/
 venv/
 .idea/
 .DS_Store
-
+notebooks/
