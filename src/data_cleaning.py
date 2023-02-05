@@ -32,4 +32,4 @@ if __name__ == "__main__":
     # clean_wiki_num_data("../data/LiterallyWikidata/LitWD19K/")
     merge_to_labels("../data/LiterallyWikidata/Attributes/attribute_labels_en.txt",
                     "../data/LiterallyWikidata/Relations/relation_labels_en.txt",
-                    path_save="../data/LiterallyWikidata/Predicates/predicates_labels_en.txt")
+                    path_save="../data/datasets/LiterallyWikidata/Predicates/predicates_labels_en.txt")

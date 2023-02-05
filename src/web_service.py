@@ -3,7 +3,7 @@
 import logging
 from flask import Flask, request, json
 import warnings
-import main
+import main_ws
 
 warnings.filterwarnings('ignore')
 app = Flask(__name__)

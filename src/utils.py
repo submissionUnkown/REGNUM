@@ -1,7 +1,7 @@
 from multiprocessing import Pool, cpu_count
 from tqdm import tqdm
 import itertools
-
+import os
 
 def mult_proc_apply(func, elements, initializer=None, disable_tqdm=False, nb_workers=12):
     nb_workers = min(cpu_count(), nb_workers)
@@ -32,3 +32,8 @@ def all_combination_dict(suitable_var_to_pred, level):
 
         res.append(d_t)
     return res
+
+
+def create_tmp_folder(path):
+    if not os.path.exists(path):
+        os.makedirs(path)

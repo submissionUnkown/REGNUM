@@ -38,6 +38,7 @@ class RDFGraph(ABC):
 @dataclass
 class RDFLibGraph(RDFGraph):
     save: bool = False
+    p_save_g: str = PATH_SAVE_GRAPH
 
     def __post_init__(self):
         self.graph = Graph()
@@ -58,8 +59,8 @@ class RDFLibGraph(RDFGraph):
 
     def save_graph_serialize(self):
         print("saving...")
-        print(PATH_SAVE_GRAPH)
-        self.graph.serialize(destination=PATH_SAVE_GRAPH, format='ttl')
+        print(self.p_save_g)
+        self.graph.serialize(destination=self.p_save_g, format='ttl')
 
     def query_count(self, query):
         relaxed_supp = 0
@@ -81,6 +82,7 @@ class RDFLibGraph(RDFGraph):
 class StarDogGraph(RDFGraph):
     force: bool = False
     database_name: str = 'tmp'
+    p_save_g: str = PATH_SAVE_GRAPH
 
     def __post_init__(self):
         self._init_conn()
@@ -104,12 +106,12 @@ class StarDogGraph(RDFGraph):
         self.conn = stardog.Connection(self.database_name, **connection_details)
 
     def populate_graph(self):
-        print(PATH_SAVE_GRAPH)
+        print(self.p_save_g)
 
-        if not os.path.exists(PATH_SAVE_GRAPH) or self.force:
-            RDFLibGraph(self.dataloader, save=True)
+        if not os.path.exists(self.p_save_g) or self.force:
+            RDFLibGraph(self.dataloader, save=True, p_save_g=self.p_save_g)
         self.conn.begin()
-        self.conn.add(stardog.content.File(PATH_SAVE_GRAPH))
+        self.conn.add(stardog.content.File(self.p_save_g))
         self.conn.commit()  # commit the transaction
 
     def query_count(self, query):
@@ -122,27 +124,3 @@ class StarDogGraph(RDFGraph):
 
     def query_res_list(self, query):
         return [item.popitem()[1]["value"] for item in self.conn.select(query)['results']['bindings']]
-
-
-"""
-    path_save_rules: str
-    def __post_init__(self):
-        self._create_nt_f()
-        self._create_graph()
-
-    def _create_nt_f(self):
-        data = open(self.path_save_rules + "train.txt", "r")
-        f = open(self.path_save_rules + "train.nt", "w")
-        for line in data:
-            ss = ""
-            line_split = line.split("\n")[0].split("\t")
-            for i in range(len(line_split)):
-                ss += "<http://" + line_split[i] + "> "
-            f.write(ss + ". \n")
-        data.close()
-        f.close()
-
-    def _create_graph(self):
-        self.graph = rdflib.Graph()
-        self.graph.parse(self.path_save_rules+"train.nt", format="turtle")
-"""
