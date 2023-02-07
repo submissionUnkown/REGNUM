@@ -29,3 +29,22 @@ This repository contains the data and implementation of the submission  **REGNUM
 <summary>Install Java >= 8</summary>
 </details>
 ## Quick start
+
+Start from the run_process.py and pass arguemnt to enrich the rules
+
+For ex:
+    
+    python src/run_process.py
+    --train_path data/datasets/sample_small/train_dl.tsv
+    --numerical_path data/datasets/sample_small/numericals.tsv
+    --path_result data/results/result_sample
+
+ARGS:
+
+    --train_path :
+    --numerical_path :
+    --path_result :
+    --MINHC :
+    --MINCONF :
+    
+    
