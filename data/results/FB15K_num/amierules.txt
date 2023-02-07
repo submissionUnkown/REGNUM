@@ -1,0 +1,17 @@
+Assuming rdf:type as type relation
+Loading files... 
+  Starting train.txt
+  Finished train.txt, still running: 0
+Loaded 503448 facts in 3.66 s using 392 MB
+Using HeadCoverage as pruning metric with minimum threshold 0.01
+Using recursivity limit 3
+Lazy mining assistant that stops counting when the denominator gets too high
+No minimum threshold on standard confidence
+Filtering on PCA confidence with minimum threshold 0.1
+Constants in the arguments of relations are disabled
+Lossless (query refinement) heuristics enabled
+MRT calls: 0
+Starting the mining phase... Using 8 threads
+Rule	Head Coverage	Std Confidence	PCA Confidence	Positive Examples	Body size	PCA Body size	Functional variable
+?e  http:///people/person/languages  ?b  ?e  http:///people/person/nationality  ?a   => ?a  http:///location/country/languages_spoken  ?b	0.131097561	0.311594203	0.380530973	43	138	113	?a
+?a  http:///film/film/country  ?f  ?b  http:///language/human_language/countries_spoken_in  ?f   => ?a  http:///film/film/language  ?b	0.190193752	0.139582124	0.163327674	481	3446	2945	?a

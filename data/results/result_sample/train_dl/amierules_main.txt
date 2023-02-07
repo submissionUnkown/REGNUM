@@ -1,0 +1,38 @@
+Assuming rdf:type as type relation
+Loading files...
+  Starting train.txt
+  Finished train.txt, still running: 0
+Loaded 120230 facts in 0.85 s using 179 MB
+Using HeadCoverage as pruning metric with minimum threshold 0.01
+Using recursivity limit 3
+Lazy mining assistant that stops counting when the denominator gets too high
+No minimum threshold on standard confidence
+Filtering on PCA confidence with minimum threshold 0.1
+Constants in the arguments of relations are disabled
+Lossless (query refinement) heuristics enabled
+MRT calls: 0
+Starting the mining phase... Using 8 threads
+Rule	Head Coverage	Std Confidence	PCA Confidence	Positive Examples	Body size	PCA Body size	Functional variable
+?b  http://dbpedia.org/ontology/cinematography  ?a   => ?a  http://dbpedia.org/ontology/award  ?b	0.050704225	0.020477816	0.18556701	18	879	97	?a
+?b  http://dbpedia.org/ontology/writer  ?a   => ?a  http://dbpedia.org/ontology/award  ?b	0.028169014	0.012578616	0.2	10	795	50	?a
+?b  http://dbpedia.org/ontology/editing  ?a   => ?a  http://dbpedia.org/ontology/award  ?b	0.01971831	0.009845288	0.114754098	7	711	61	?a
+?a  http://dbpedia.org/ontology/officialLanguage  ?b   => ?a  http://dbpedia.org/ontology/ethnicGroup  ?b	0.150943396	0.105960265	0.41025641	16	151	39	?a
+?a  http://dbpedia.org/ontology/timeZone  ?b   => ?a  http://dbpedia.org/ontology/ethnicGroup  ?b	0.056603774	0.005671078	0.214285714	6	1058	28	?a
+?a  http://dbpedia.org/ontology/foundedBy  ?b   => ?a  http://dbpedia.org/ontology/keyPerson  ?b	0.022727273	0.044776119	0.272727273	3	67	11	?a
+?a  http://dbpedia.org/ontology/owner  ?b   => ?a  http://dbpedia.org/ontology/keyPerson  ?b	0.022727273	0.033707865	0.176470588	3	89	17	?a
+?b  http://dbpedia.org/ontology/keyPerson  ?a   => ?a  http://dbpedia.org/ontology/keyPerson  ?b	0.037878788	0.037878788	0.833333333	5	132	6	?a
+?b  http://dbpedia.org/ontology/employer  ?a   => ?a  http://dbpedia.org/ontology/keyPerson  ?b	0.015151515	0.166666667	0.666666667	2	12	3	?a
+?a  http://dbpedia.org/ontology/industry  ?b   => ?a  http://dbpedia.org/ontology/keyPerson  ?b	0.121212121	0.056140351	0.216216216	16	285	74	?a
+?a  http://dbpedia.org/ontology/owningCompany  ?b   => ?a  http://dbpedia.org/ontology/keyPerson  ?b	0.037878788	0.039370079	0.227272727	5	127	22	?a
+?a  http://dbpedia.org/ontology/foundationPlace  ?b   => ?a  http://dbpedia.org/ontology/keyPerson  ?b	0.015151515	0.018867925	0.105263158	2	106	19	?a
+?a  http://dbpedia.org/ontology/formerBandMember  ?b   => ?a  http://dbpedia.org/ontology/bandMember  ?b	0.038461538	0.025906736	0.106382979	5	193	47	?b
+?b  http://dbpedia.org/ontology/associatedBand  ?a   => ?a  http://dbpedia.org/ontology/bandMember  ?b	0.338461538	0.024760833	0.194690265	44	1777	226	?b
+?b  http://www.w3.org/2000/01/rdf-schema%23seeAlso  ?a   => ?a  http://dbpedia.org/ontology/bandMember  ?b	0.023076923	0.00108735	0.25	3	2759	12	?b
+?b  http://dbpedia.org/ontology/associatedMusicalArtist  ?a   => ?a  http://dbpedia.org/ontology/bandMember  ?b	0.346153846	0.027157514	0.206422018	45	1657	218	?b
+?b  http://dbpedia.org/ontology/award  ?a   => ?a  http://dbpedia.org/ontology/relative  ?b	0.013245033	0.005633803	0.25	2	355	8	?b
+?a  http://dbpedia.org/ontology/award  ?b   => ?a  http://dbpedia.org/ontology/relative  ?b	0.039735099	0.016901408	0.4	6	355	15	?b
+?b  http://www.w3.org/2000/01/rdf-schema%23seeAlso  ?a   => ?a  http://dbpedia.org/ontology/relative  ?b	0.013245033	0.0007249	0.105263158	2	2759	19	?b
+?b  http://dbpedia.org/ontology/spouse  ?a   => ?a  http://dbpedia.org/ontology/relative  ?b	0.026490066	0.011049724	0.148148148	4	362	27	?b
+?a  http://dbpedia.org/ontology/spouse  ?b   => ?a  http://dbpedia.org/ontology/relative  ?b	0.026490066	0.011049724	0.173913043	4	362	23	?b
+?b  http://dbpedia.org/ontology/parent  ?a   => ?a  http://dbpedia.org/ontology/relative  ?b	0.026490066	0.051282051	0.235294118	4	78	17	?b
+?a  http://dbpedia.org/ontology/ethnicity  ?b   => ?a  http://dbpedia.org/ontology/relative  ?b	0.01986755	0.0625	0.1875	3	48	16	?b

@@ -1,0 +1,483 @@
+{
+    "0": {
+        "parent_rule": "?b  http://dbpedia.org/ontology/cinematography  ?a   => ?a  http://dbpedia.org/ontology/award  ?b",
+        "numerical_rules": []
+    },
+    "1": {
+        "parent_rule": "?b  http://dbpedia.org/ontology/writer  ?a   => ?a  http://dbpedia.org/ontology/award  ?b",
+        "numerical_rules": [
+            {
+                "parent_rule": "?b  http://dbpedia.org/ontology/writer  ?a   => ?a  http://dbpedia.org/ontology/award  ?b",
+                "include_exclude": "exclude",
+                "numerical_part": [
+                    [
+                        "?a",
+                        "http://dbpedia.org/ontology/birthDate"
+                    ]
+                ],
+                "support": 8,
+                "pca_body_size": 26,
+                "pca_confidence": 0.3076923076923077,
+                "head_coverage": 0.022535211267605635,
+                "f_score": 0.04199475065616798,
+                "level": 1
+            },
+            {
+                "parent_rule": "?b  http://dbpedia.org/ontology/writer  ?a   => ?a  http://dbpedia.org/ontology/award  ?b",
+                "include_exclude": "exclude",
+                "numerical_part": [
+                    [
+                        "?a",
+                        "http://dbpedia.org/ontology/birthYear"
+                    ]
+                ],
+                "support": 8,
+                "pca_body_size": 24,
+                "pca_confidence": 0.3333333333333333,
+                "head_coverage": 0.022535211267605635,
+                "f_score": 0.04221635883905013,
+                "level": 1
+            }
+        ]
+    },
+    "2": {
+        "parent_rule": "?b  http://dbpedia.org/ontology/editing  ?a   => ?a  http://dbpedia.org/ontology/award  ?b",
+        "numerical_rules": []
+    },
+    "3": {
+        "parent_rule": "?a  http://dbpedia.org/ontology/officialLanguage  ?b   => ?a  http://dbpedia.org/ontology/ethnicGroup  ?b",
+        "numerical_rules": []
+    },
+    "4": {
+        "parent_rule": "?a  http://dbpedia.org/ontology/timeZone  ?b   => ?a  http://dbpedia.org/ontology/ethnicGroup  ?b",
+        "numerical_rules": []
+    },
+    "5": {
+        "parent_rule": "?a  http://dbpedia.org/ontology/foundedBy  ?b   => ?a  http://dbpedia.org/ontology/keyPerson  ?b",
+        "numerical_rules": []
+    },
+    "6": {
+        "parent_rule": "?a  http://dbpedia.org/ontology/owner  ?b   => ?a  http://dbpedia.org/ontology/keyPerson  ?b",
+        "numerical_rules": []
+    },
+    "7": {
+        "parent_rule": "?b  http://dbpedia.org/ontology/keyPerson  ?a   => ?a  http://dbpedia.org/ontology/keyPerson  ?b",
+        "numerical_rules": []
+    },
+    "8": {
+        "parent_rule": "?b  http://dbpedia.org/ontology/employer  ?a   => ?a  http://dbpedia.org/ontology/keyPerson  ?b",
+        "numerical_rules": []
+    },
+    "9": {
+        "parent_rule": "?a  http://dbpedia.org/ontology/industry  ?b   => ?a  http://dbpedia.org/ontology/keyPerson  ?b",
+        "numerical_rules": []
+    },
+    "10": {
+        "parent_rule": "?a  http://dbpedia.org/ontology/owningCompany  ?b   => ?a  http://dbpedia.org/ontology/keyPerson  ?b",
+        "numerical_rules": []
+    },
+    "11": {
+        "parent_rule": "?a  http://dbpedia.org/ontology/foundationPlace  ?b   => ?a  http://dbpedia.org/ontology/keyPerson  ?b",
+        "numerical_rules": []
+    },
+    "12": {
+        "parent_rule": "?a  http://dbpedia.org/ontology/formerBandMember  ?b   => ?a  http://dbpedia.org/ontology/bandMember  ?b",
+        "numerical_rules": []
+    },
+    "13": {
+        "parent_rule": "?b  http://dbpedia.org/ontology/associatedBand  ?a   => ?a  http://dbpedia.org/ontology/bandMember  ?b",
+        "numerical_rules": []
+    },
+    "14": {
+        "parent_rule": "?b  http://www.w3.org/2000/01/rdf-schema%23seeAlso  ?a   => ?a  http://dbpedia.org/ontology/bandMember  ?b",
+        "numerical_rules": []
+    },
+    "15": {
+        "parent_rule": "?b  http://dbpedia.org/ontology/associatedMusicalArtist  ?a   => ?a  http://dbpedia.org/ontology/bandMember  ?b",
+        "numerical_rules": []
+    },
+    "16": {
+        "parent_rule": "?b  http://dbpedia.org/ontology/award  ?a   => ?a  http://dbpedia.org/ontology/relative  ?b",
+        "numerical_rules": []
+    },
+    "17": {
+        "parent_rule": "?a  http://dbpedia.org/ontology/award  ?b   => ?a  http://dbpedia.org/ontology/relative  ?b",
+        "numerical_rules": [
+            {
+                "parent_rule": "?a  http://dbpedia.org/ontology/award  ?b   => ?a  http://dbpedia.org/ontology/relative  ?b",
+                "include_exclude": "exclude",
+                "numerical_part": [
+                    [
+                        "?a",
+                        "http://dbpedia.org/ontology/birthYear"
+                    ]
+                ],
+                "support": 6,
+                "pca_body_size": 11,
+                "pca_confidence": 0.5454545454545454,
+                "head_coverage": 0.039735099337748346,
+                "f_score": 0.07407407407407408,
+                "level": 1
+            },
+            {
+                "parent_rule": "?a  http://dbpedia.org/ontology/award  ?b   => ?a  http://dbpedia.org/ontology/relative  ?b",
+                "include_exclude": "exclude",
+                "numerical_part": [
+                    [
+                        "?a",
+                        "http://dbpedia.org/ontology/birthYear"
+                    ]
+                ],
+                "support": 6,
+                "pca_body_size": 12,
+                "pca_confidence": 0.5,
+                "head_coverage": 0.039735099337748346,
+                "f_score": 0.0736196319018405,
+                "level": 1
+            },
+            {
+                "parent_rule": "?a  http://dbpedia.org/ontology/award  ?b   => ?a  http://dbpedia.org/ontology/relative  ?b",
+                "include_exclude": "exclude",
+                "numerical_part": [
+                    [
+                        "?a",
+                        "http://dbpedia.org/ontology/birthDate"
+                    ]
+                ],
+                "support": 5,
+                "pca_body_size": 10,
+                "pca_confidence": 0.5,
+                "head_coverage": 0.033112582781456956,
+                "f_score": 0.06211180124223604,
+                "level": 1
+            }
+        ]
+    },
+    "18": {
+        "parent_rule": "?b  http://www.w3.org/2000/01/rdf-schema%23seeAlso  ?a   => ?a  http://dbpedia.org/ontology/relative  ?b",
+        "numerical_rules": []
+    },
+    "19": {
+        "parent_rule": "?b  http://dbpedia.org/ontology/spouse  ?a   => ?a  http://dbpedia.org/ontology/relative  ?b",
+        "numerical_rules": [
+            {
+                "parent_rule": "?b  http://dbpedia.org/ontology/spouse  ?a   => ?a  http://dbpedia.org/ontology/relative  ?b",
+                "include_exclude": "exclude",
+                "numerical_part": [
+                    [
+                        "?b",
+                        "http://dbpedia.org/ontology/birthDate"
+                    ]
+                ],
+                "support": 4,
+                "pca_body_size": 22,
+                "pca_confidence": 0.18181818181818182,
+                "head_coverage": 0.026490066225165563,
+                "f_score": 0.046242774566473986,
+                "level": 1
+            },
+            {
+                "parent_rule": "?b  http://dbpedia.org/ontology/spouse  ?a   => ?a  http://dbpedia.org/ontology/relative  ?b",
+                "include_exclude": "exclude",
+                "numerical_part": [
+                    [
+                        "?b",
+                        "http://dbpedia.org/ontology/birthDate"
+                    ]
+                ],
+                "support": 4,
+                "pca_body_size": 12,
+                "pca_confidence": 0.3333333333333333,
+                "head_coverage": 0.026490066225165563,
+                "f_score": 0.049079754601226995,
+                "level": 1
+            },
+            {
+                "parent_rule": "?b  http://dbpedia.org/ontology/spouse  ?a   => ?a  http://dbpedia.org/ontology/relative  ?b",
+                "include_exclude": "exclude",
+                "numerical_part": [
+                    [
+                        "?b",
+                        "http://dbpedia.org/ontology/birthYear"
+                    ]
+                ],
+                "support": 4,
+                "pca_body_size": 22,
+                "pca_confidence": 0.18181818181818182,
+                "head_coverage": 0.026490066225165563,
+                "f_score": 0.046242774566473986,
+                "level": 1
+            },
+            {
+                "parent_rule": "?b  http://dbpedia.org/ontology/spouse  ?a   => ?a  http://dbpedia.org/ontology/relative  ?b",
+                "include_exclude": "exclude",
+                "numerical_part": [
+                    [
+                        "?b",
+                        "http://dbpedia.org/ontology/birthYear"
+                    ]
+                ],
+                "support": 4,
+                "pca_body_size": 12,
+                "pca_confidence": 0.3333333333333333,
+                "head_coverage": 0.026490066225165563,
+                "f_score": 0.049079754601226995,
+                "level": 1
+            }
+        ]
+    },
+    "20": {
+        "parent_rule": "?a  http://dbpedia.org/ontology/spouse  ?b   => ?a  http://dbpedia.org/ontology/relative  ?b",
+        "numerical_rules": [
+            {
+                "parent_rule": "?a  http://dbpedia.org/ontology/spouse  ?b   => ?a  http://dbpedia.org/ontology/relative  ?b",
+                "include_exclude": "exclude",
+                "numerical_part": [
+                    [
+                        "?a",
+                        "http://dbpedia.org/ontology/birthDate"
+                    ]
+                ],
+                "support": 4,
+                "pca_body_size": 15,
+                "pca_confidence": 0.26666666666666666,
+                "head_coverage": 0.026490066225165563,
+                "f_score": 0.048192771084337345,
+                "level": 1
+            },
+            {
+                "parent_rule": "?a  http://dbpedia.org/ontology/spouse  ?b   => ?a  http://dbpedia.org/ontology/relative  ?b",
+                "include_exclude": "exclude",
+                "numerical_part": [
+                    [
+                        "?a",
+                        "http://dbpedia.org/ontology/birthDate"
+                    ]
+                ],
+                "support": 4,
+                "pca_body_size": 18,
+                "pca_confidence": 0.2222222222222222,
+                "head_coverage": 0.026490066225165563,
+                "f_score": 0.04733727810650888,
+                "level": 1
+            },
+            {
+                "parent_rule": "?a  http://dbpedia.org/ontology/spouse  ?b   => ?a  http://dbpedia.org/ontology/relative  ?b",
+                "include_exclude": "exclude",
+                "numerical_part": [
+                    [
+                        "?a",
+                        "http://dbpedia.org/ontology/birthDate"
+                    ]
+                ],
+                "support": 4,
+                "pca_body_size": 19,
+                "pca_confidence": 0.21052631578947367,
+                "head_coverage": 0.026490066225165563,
+                "f_score": 0.04705882352941177,
+                "level": 1
+            },
+            {
+                "parent_rule": "?a  http://dbpedia.org/ontology/spouse  ?b   => ?a  http://dbpedia.org/ontology/relative  ?b",
+                "include_exclude": "include",
+                "numerical_part": [
+                    [
+                        "?a",
+                        "http://dbpedia.org/ontology/birthYear"
+                    ]
+                ],
+                "support": 4,
+                "pca_body_size": 19,
+                "pca_confidence": 0.21052631578947367,
+                "head_coverage": 0.026490066225165563,
+                "f_score": 0.04705882352941177,
+                "level": 1
+            },
+            {
+                "parent_rule": "?a  http://dbpedia.org/ontology/spouse  ?b   => ?a  http://dbpedia.org/ontology/relative  ?b",
+                "include_exclude": "exclude",
+                "numerical_part": [
+                    [
+                        "?a",
+                        "http://dbpedia.org/ontology/birthYear"
+                    ]
+                ],
+                "support": 4,
+                "pca_body_size": 19,
+                "pca_confidence": 0.21052631578947367,
+                "head_coverage": 0.026490066225165563,
+                "f_score": 0.04705882352941177,
+                "level": 1
+            },
+            {
+                "parent_rule": "?a  http://dbpedia.org/ontology/spouse  ?b   => ?a  http://dbpedia.org/ontology/relative  ?b",
+                "include_exclude": "exclude",
+                "numerical_part": [
+                    [
+                        "?a",
+                        "http://dbpedia.org/ontology/birthYear"
+                    ]
+                ],
+                "support": 4,
+                "pca_body_size": 16,
+                "pca_confidence": 0.25,
+                "head_coverage": 0.026490066225165563,
+                "f_score": 0.04790419161676646,
+                "level": 1
+            }
+        ]
+    },
+    "21": {
+        "parent_rule": "?b  http://dbpedia.org/ontology/parent  ?a   => ?a  http://dbpedia.org/ontology/relative  ?b",
+        "numerical_rules": [
+            {
+                "parent_rule": "?b  http://dbpedia.org/ontology/parent  ?a   => ?a  http://dbpedia.org/ontology/relative  ?b",
+                "include_exclude": "include",
+                "numerical_part": [
+                    [
+                        "?a",
+                        "http://dbpedia.org/ontology/birthYear"
+                    ]
+                ],
+                "support": 4,
+                "pca_body_size": 10,
+                "pca_confidence": 0.4,
+                "head_coverage": 0.026490066225165563,
+                "f_score": 0.049689440993788817,
+                "level": 1
+            },
+            {
+                "parent_rule": "?b  http://dbpedia.org/ontology/parent  ?a   => ?a  http://dbpedia.org/ontology/relative  ?b",
+                "include_exclude": "exclude",
+                "numerical_part": [
+                    [
+                        "?a",
+                        "http://dbpedia.org/ontology/birthYear"
+                    ]
+                ],
+                "support": 4,
+                "pca_body_size": 10,
+                "pca_confidence": 0.4,
+                "head_coverage": 0.026490066225165563,
+                "f_score": 0.049689440993788817,
+                "level": 1
+            },
+            {
+                "parent_rule": "?b  http://dbpedia.org/ontology/parent  ?a   => ?a  http://dbpedia.org/ontology/relative  ?b",
+                "include_exclude": "include",
+                "numerical_part": [
+                    [
+                        "?b",
+                        "http://dbpedia.org/ontology/birthYear"
+                    ]
+                ],
+                "support": 4,
+                "pca_body_size": 12,
+                "pca_confidence": 0.3333333333333333,
+                "head_coverage": 0.026490066225165563,
+                "f_score": 0.049079754601226995,
+                "level": 1
+            },
+            {
+                "parent_rule": "?b  http://dbpedia.org/ontology/parent  ?a   => ?a  http://dbpedia.org/ontology/relative  ?b",
+                "include_exclude": "exclude",
+                "numerical_part": [
+                    [
+                        "?b",
+                        "http://dbpedia.org/ontology/birthYear"
+                    ]
+                ],
+                "support": 4,
+                "pca_body_size": 12,
+                "pca_confidence": 0.3333333333333333,
+                "head_coverage": 0.026490066225165563,
+                "f_score": 0.049079754601226995,
+                "level": 1
+            },
+            {
+                "parent_rule": "?b  http://dbpedia.org/ontology/parent  ?a   => ?a  http://dbpedia.org/ontology/relative  ?b",
+                "include_exclude": "exclude",
+                "numerical_part": [
+                    [
+                        "?b",
+                        "http://dbpedia.org/ontology/birthYear"
+                    ]
+                ],
+                "support": 4,
+                "pca_body_size": 13,
+                "pca_confidence": 0.3076923076923077,
+                "head_coverage": 0.026490066225165563,
+                "f_score": 0.048780487804878044,
+                "level": 1
+            },
+            {
+                "parent_rule": "?b  http://dbpedia.org/ontology/parent  ?a   => ?a  http://dbpedia.org/ontology/relative  ?b",
+                "include_exclude": "include",
+                "numerical_part": [
+                    [
+                        "?b",
+                        "http://dbpedia.org/ontology/birthDate"
+                    ]
+                ],
+                "support": 4,
+                "pca_body_size": 12,
+                "pca_confidence": 0.3333333333333333,
+                "head_coverage": 0.026490066225165563,
+                "f_score": 0.049079754601226995,
+                "level": 1
+            },
+            {
+                "parent_rule": "?b  http://dbpedia.org/ontology/parent  ?a   => ?a  http://dbpedia.org/ontology/relative  ?b",
+                "include_exclude": "exclude",
+                "numerical_part": [
+                    [
+                        "?b",
+                        "http://dbpedia.org/ontology/birthDate"
+                    ]
+                ],
+                "support": 4,
+                "pca_body_size": 12,
+                "pca_confidence": 0.3333333333333333,
+                "head_coverage": 0.026490066225165563,
+                "f_score": 0.049079754601226995,
+                "level": 1
+            },
+            {
+                "parent_rule": "?b  http://dbpedia.org/ontology/parent  ?a   => ?a  http://dbpedia.org/ontology/relative  ?b",
+                "include_exclude": "exclude",
+                "numerical_part": [
+                    [
+                        "?b",
+                        "http://dbpedia.org/ontology/birthDate"
+                    ]
+                ],
+                "support": 4,
+                "pca_body_size": 14,
+                "pca_confidence": 0.2857142857142857,
+                "head_coverage": 0.026490066225165563,
+                "f_score": 0.048484848484848485,
+                "level": 1
+            },
+            {
+                "parent_rule": "?b  http://dbpedia.org/ontology/parent  ?a   => ?a  http://dbpedia.org/ontology/relative  ?b",
+                "include_exclude": "exclude",
+                "numerical_part": [
+                    [
+                        "?a",
+                        "http://dbpedia.org/ontology/birthDate"
+                    ]
+                ],
+                "support": 4,
+                "pca_body_size": 10,
+                "pca_confidence": 0.4,
+                "head_coverage": 0.026490066225165563,
+                "f_score": 0.049689440993788817,
+                "level": 1
+            }
+        ]
+    },
+    "22": {
+        "parent_rule": "?a  http://dbpedia.org/ontology/ethnicity  ?b   => ?a  http://dbpedia.org/ontology/relative  ?b",
+        "numerical_rules": []
+    }
+}
