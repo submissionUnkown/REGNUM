@@ -47,14 +47,14 @@ class RunParseAMIE(RunParseBase):
         self.min_pca_conf: float = min_pca_conf
 
         self.min_hc: float = min_hc
-        self.mineRules = True if not os.path.exists(self.path_save_rules + "/amierules.txt") else False
+        self.mineRules = True if not os.path.exists(self.path_save_rules + "/amierules_main.txt") else False
 
         if self.mineRules or self.force_create_rule:
             self.run()
             self.rules_mined_f = self.res_rules_raw.decode("utf-8").split("\n")
         else:
             print("loading from file...")
-            self.rules_mined_f = open(self.path_save_rules + "/amierules.txt", "r")
+            self.rules_mined_f = open(self.path_save_rules + "/amierules_main.txt", "r")
 
     def run(self):
 
@@ -77,7 +77,7 @@ class RunParseAMIE(RunParseBase):
         self.res_rules_raw = check_output(run_command_amie, shell=True)
 
         # print(len(self.res_rules_raw))
-        file = open(self.path_save_rules + "/amierules.txt", "w")
+        file = open(self.path_save_rules + "/amierules_main.txt", "w")
         for line in self.res_rules_raw.decode("utf-8").split("\n"):
             file.write(str(line) + "\n")
         file.close()

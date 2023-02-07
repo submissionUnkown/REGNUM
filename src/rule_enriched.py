@@ -28,7 +28,7 @@ class ConstructRules:
         d = dict()
         d['parent_rule'] = self.parent_rule
         d['include_exclude'] = self.include_exclude
-        d['numerical_part'] = self.numerical_part
+        d['numerical_part'] = list(self.numerical_part)
         d['support'] = self.support
         d['pca_body_size'] = self.pca_body_size
         d['pca_confidence'] = self.pca_confidence

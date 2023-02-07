@@ -5,65 +5,60 @@ from graph_data import StarDogGraph
 from parent_ruleminer import RunParseAMIE
 from tqdm import tqdm
 from runner import run
-
+from utils import create_tmp_folder
+from rule_writer import CustomJsonEncoder
+import json
 
 def parse_input():
     parser = argparse.ArgumentParser(
         description="Enrich rules"
     )
     parser.add_argument(
-        "--f_name",
+        "--train_path",
         type=str,
-        help="Retailers id. use: --retailers 1 ",
-    )
-    parser.add_argument("--year", type=int, help="Year of new data. Ex: --year 2022")
-    parser.add_argument(
-        "--weeks",
-        nargs="+",
-        type=int,
-        help="Weeks for new data. Should be separated by comma. Ex: --weeks 3 4 --> data for week 3 and 4",
+        help="path to train tsv file",
     )
     parser.add_argument(
-        "--categories",
-        nargs="+",
+        "--numerical_path",
         type=str,
-        help="Category id. Ex: --categories 33D 228D",
+        help="psth to list numerical tsv path"
     )
     parser.add_argument(
-        "--country",
+        "--path_RM",
         type=str,
-        help="Country for new data in ISO-3166-1 format. Ex: --country FR",
+        help="path to jar file for rule miner (amie or anyburl)",
+        default='data/rule_miners/amie_jar/amie3.jar'
     )
     parser.add_argument(
-        "--nb_weeks",
-        type=int,
-        help="Generate predictions for weeks in the past. Ex: --nb_weeks 6 with"
-             " year 2021 and week 3 will give data for [(2020, 50), (2021, 3)]",
-        default=0,
+        "--path_result",
+        type=str,
+        help="place to store all results",
+        default='data/results'
     )
-    parser.add_argument(
-        "--client",
-        type=int,
-        help="client ID",
-    )
-
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_input()
-    dl = GeneralDataLoader(path_t=f'{p}/train_dl.tsv', path_numerical_preds=f'{p}/numericals.tsv')
-    gr = StarDogGraph(dl, database_name='DB15K_num', force=True, p_save_g=PATH_result + 'graph.ttl')
-    miner = RunParseAMIE(data=dl.df, path_rule_miner=PATH_RM,
-                         path_save_rules=PATH_result)
+    tr_path = args.train_path
+    db_name = tr_path.rsplit('/', 1)[-1].rsplit('.', 1)[0]
+    path_result = f'{args.path_result}/{db_name}/'
+    create_tmp_folder(path_result)
+
+    dl = GeneralDataLoader(path_t=tr_path, path_numerical_preds=args.numerical_path)
+    gr = StarDogGraph(dl, database_name=db_name, force=False, p_save_g=f'{path_result}graph.ttl')
+    miner = RunParseAMIE(data=dl.df, path_rule_miner=args.path_RM,
+                         path_save_rules=path_result)
     rules = miner.parse()
-    dict_all_new_rules_f_score = run(rules[1321:1323], gr, preds)
+    enriched_rules = run(rules, gr, list(dl.numerical_preds))
+    with open(f'{path_result}enriched_rules.json', 'w', encoding='utf-8') as f:
+        json.dump(enriched_rules, f, indent=4, cls=CustomJsonEncoder)
+
 
 if __name__ == "__main__":
     main()
 
 """
-python performance_analysis/run_process.py --retailer 96 --year 2022 --categories 036D73 036D28 036D71 --country AU --client 124997
-
+python src/run_process.py --train_path path/to/train.tsv --numerical_path path/to/num.tsv --path_RM path/to/rm.jar --path_result path/to/result
 
 """

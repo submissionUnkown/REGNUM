@@ -11,6 +11,10 @@ class SavingModeRules(Enum):
     JSON_BENCHMARK = "json-bnc"
 
 
+def dump_json(dict_all_new_rules, f):
+    return json.dumps(dict_all_new_rules, f, indent=4, cls=CustomJsonEncoder)
+
+
 class CustomJsonEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Atom):
@@ -26,13 +30,12 @@ class CustomJsonEncoder(json.JSONEncoder):
         return super(CustomJsonEncoder, self).default(obj)
 
 
-
 class WriteNewRules:
     def __init__(self, saving_path, saving_mode=SavingModeRules.JSON, binning="mdlp"):
         self.saving_path: str = saving_path
         self.saving_mode: SavingModeRules = saving_mode
         self.binning_technique = binning
-        #self._meta_data_writer()
+        # self._meta_data_writer()
 
     def _meta_data_writer(self):
         if self.saving_mode.value == "amie-like":
@@ -42,7 +45,7 @@ class WriteNewRules:
         if self.saving_mode.value == "amie-like":
             self._write_numerical_pred_rules_amie_like(dict_all_new_rules)
         if self.saving_mode.value == "json":
-            #not useful anymore
+            # not useful anymore
             self._write_numerical_pred_rules_json(dict_all_new_rules)
         if self.saving_mode.value == "json-bnc":
             dict_kgc = self._bnc_rule_creation(dict_all_new_rules)
@@ -106,18 +109,18 @@ class WriteNewRules:
 
                     _tmp_l = lis_parent_rule[0]
                     self._write_original_rule(_tmp_l['parent_rule'], f)
-                    #print(lis_parent_rule)
+                    # print(lis_parent_rule)
                     if len(lis_parent_rule) == 1:
                         for _ in range(5):
                             f.write('\n')
                         continue
                     for dict_new_rule in lis_parent_rule[1:]:
-                        #rule = self.create_str_new_rule(dict_new_rule['parent_rule'], dict_new_rule)
+                        # rule = self.create_str_new_rule(dict_new_rule['parent_rule'], dict_new_rule)
                         enriched_rule = dict_new_rule['enriched_rule']
                         headCoverage = dict_new_rule['headCoverage']
                         stdConfidence = dict_new_rule['stdConfidence']
                         pcaConfidence = dict_new_rule['pcaConfidence']
-                        #f_score = dict_new_rule['f_score']
+                        # f_score = dict_new_rule['f_score']
                         support = dict_new_rule['support']
                         bodySize = dict_new_rule['bodySize']
                         pcaBodysize = dict_new_rule['pcaBodySize']
@@ -126,7 +129,7 @@ class WriteNewRules:
                         numericalVariable = dict_new_rule['var_num']
                         beginInterval = dict_new_rule['beginInterval']
                         endInterval = dict_new_rule['endInterval']
-                        #include_exclude = dict_new_rule['include_exclude']
+                        # include_exclude = dict_new_rule['include_exclude']
 
                         f.write(
                             f'{enriched_rule}\t{headCoverage}\t{stdConfidence}\t{pcaConfidence}\t{support}\t{bodySize}\t{pcaBodysize}\t{functionalVariable}\t{predicateNumerical}\t{numericalVariable}\t{beginInterval}\t{endInterval}\n')
