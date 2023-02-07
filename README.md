@@ -28,9 +28,10 @@ This repository contains the data and implementation of the submission  **REGNUM
 
 <summary>Install Java >= 8</summary>
 </details>
+
 ## Quick start
 
-Start from the run_process.py and pass arguemnt to enrich the rules
+Start from the run_process.py and pass arguments to enrich the rules
 
 For ex:
     
@@ -41,10 +42,11 @@ For ex:
 
 ARGS:
 
-    --train_path :
-    --numerical_path :
-    --path_result :
-    --MINHC :
-    --MINCONF :
+    --train_path : path to train data. it should have 3 columns (subject predicate object)
+    --numerical_path : Path to numerical predicate 1 column
+    --path_result : specify a path to store the data
+    --MINHC : #TODO
+    --MINCONF : #TODO
     
     
+
