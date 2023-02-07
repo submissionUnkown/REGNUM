@@ -29,6 +29,13 @@ This repository contains the data and implementation of the submission  **REGNUM
 <summary>Install Java >= 8</summary>
 </details>
 
+
+## tutorial:
+
+checkout the tutorial notebook, an example on how to run
+REGNUM.
+
+
 ## Quick start
 
 Start from the run_process.py and pass arguments to enrich the rules
@@ -48,5 +55,3 @@ ARGS:
     --MINHC : #TODO
     --MINCONF : #TODO
     
-    
-
