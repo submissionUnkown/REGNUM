@@ -25,11 +25,6 @@ This repository contains the data and implementation of the submission  **REGNUM
     
 </details>
 
-## tutorial:
-
-checkout the tutorial notebook, an example on how to run
-REGNUM.
-
 
 ## Quick start
 
@@ -44,9 +39,12 @@ For ex:
 
 ARGS:
 
-    --train_path : path to train data. it should have 3 columns (subject predicate object)
-    --numerical_path : Path to numerical predicate 1 column
+    --train_path: path to train data. 
+    --numerical_path : Path to numerical predicate 
     --path_result : specify a path to store the data
-    --MINHC : #TODO
-    --MINCONF : #TODO
+    
+## Tutorial:
+
+checkout the tutorial notebook, an example on how to run
+REGNUM.
     
