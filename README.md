@@ -17,18 +17,13 @@ This repository contains the data and implementation of the submission  **REGNUM
 </details>
 <details>
 
-<summary>Run the following to set up your virtual environment and install the Python requirements:</summary>
+<summary>Run the following to set up your virtual environment and install the Python requirements, also Install Java >= 8 :</summary>
 
     python3.8 -m venv regnum_env
     source regnum_env/bin/activate
     pip install -r requirements.txt
     
 </details>
-<details>
-
-<summary>Install Java >= 8</summary>
-</details>
-
 
 ## tutorial:
 
