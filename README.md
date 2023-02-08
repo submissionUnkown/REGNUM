@@ -42,9 +42,15 @@ ARGS:
     --train_path: path to train data. 
     --numerical_path : Path to numerical predicate 
     --path_result : specify a path to store the data
-    
+  
+  
+REGNUM takes as input a file that contains a knowledge base. It should have the following format (like the input to AMIE): 
+```
+subject DELIM predicate DELIM object [whitespace/tabulation] NEWLINE
+```
+
 ## Tutorial:
 
-checkout the tutorial notebook, an example on how to run
+Checkout the tutorial notebook, an example on how to run
 REGNUM.
     
